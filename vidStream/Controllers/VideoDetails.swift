@@ -36,16 +36,12 @@ class VideoDetails: UIViewController, AVPlayerViewControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        initialize()
-        
+        initialize()   
     }
     
     private func initialize(){
         dataController.delegate = self
         dataController.requestData(fileName: "Videos.json")
-        let horizontalCenter: CGFloat = UIScreen.main.bounds.size.width / 2.0
-        overlay.listButton.center = CGPoint(x: horizontalCenter, y: 88)
-        overlay.listButton.addTarget(self, action: #selector(overlayVideoListAction), for: .touchUpInside)
     }
     
     fileprivate var listOfVideos = [Videos](){
@@ -65,6 +61,7 @@ class VideoDetails: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     @IBAction func videoPlayClickAction(_ sender: UIButton) {
+        self.setupOverlayButton()
         playButton.isHidden = true
         playImageView.isHidden = true
         overlayView.isHidden = true
@@ -79,18 +76,14 @@ class VideoDetails: UIViewController, AVPlayerViewControllerDelegate {
         avPlayer.play()
     }
     
-    
-    @objc func overlayVideoListAction(sender: UIButton!) {
-          let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-              self.fullLisView.isHidden = false
-              window!.addSubview(self.fullLisView)
+    func setupOverlayButton() {
+        let horizontalCenter: CGFloat = UIScreen.main.bounds.size.width / 2.0
+        let topDistance = (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0)! +
+            (navigationController?.navigationBar.frame.height ?? 0.0)
+        overlay.listButton.center = CGPoint(x: horizontalCenter, y: topDistance)
+        overlay.listButton.addTarget(self, action: #selector(overlayVideoListAction), for: .touchUpInside)
     }
-    
-     @IBAction func closeListAction(sender: UIButton!) {
-        self.fullLisView.isHidden = true
-     }
-  
-    
+      
     func playerViewController(_: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator: UIViewControllerTransitionCoordinator) {
         let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
          overlay.listButton.isHidden = false
@@ -101,6 +94,17 @@ class VideoDetails: UIViewController, AVPlayerViewControllerDelegate {
     func playerViewController(_: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator: UIViewControllerTransitionCoordinator) {
         overlay.listButton.isHidden = true
     }
+    
+      
+    @objc func overlayVideoListAction(sender: UIButton!) {
+          let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+              self.fullLisView.isHidden = false
+              window!.addSubview(self.fullLisView)
+    }
+    
+     @IBAction func closeListAction(sender: UIButton!) {
+        self.fullLisView.isHidden = true
+     }
     
      @IBAction func backClickAction(_ sender: UIButton) {
         _ = navigationController?.popViewController(animated: true)
